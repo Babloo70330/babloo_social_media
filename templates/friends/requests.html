@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Friend Requests{% endblock %}
+{% block content %}
+<h5 class="mb-3">Friend Requests</h5>
+{% for req in pending %}
+<div class="sw-card d-flex flex-row align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-2">
+        <div class="sw-avatar">{{ req.from_user.username|first|upper }}</div>
+        <a href="{% url 'accounts:profile' username=req.from_user.username %}" class="sw-username text-decoration-none text-dark">{{ req.from_user.username }}</a>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'friends:accept_request' request_id=req.id %}" class="btn btn-sm btn-success">Accept</a>
+        <a href="{% url 'friends:reject_request' request_id=req.id %}" class="btn btn-sm sw-btn-outline">Decline</a>
+    </div>
+</div>
+{% empty %}
+<p class="sw-timestamp">No pending friend requests.</p>
+{% endfor %}
+{% endblock %}

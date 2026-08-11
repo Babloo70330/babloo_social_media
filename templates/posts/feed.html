@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load post_extras %}
+{% block title %}Feed - ConnectSphere{% endblock %}
+{% block content %}
+<div class="sw-card">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.content }}
+        <div class="mt-2 d-flex justify-content-between align-items-center">
+            {{ form.image }}
+            <button type="submit" class="btn btn-sm" style="background: var(--sw-primary); color:#fff;">Post</button>
+        </div>
+    </form>
+</div>
+
+{% for post in posts %}
+<div class="sw-card">
+    <div class="sw-post-header">
+        {% if post.user.profile.profile_pic %}
+            <img src="{{ post.user.profile.profile_pic.url }}" class="sw-avatar">
+        {% else %}
+            <div class="sw-avatar">{{ post.user.username|first|upper }}</div>
+        {% endif %}
+        <div class="flex-grow-1">
+            <a href="{% url 'accounts:profile' username=post.user.username %}" class="sw-username text-decoration-none text-dark">{{ post.user.username }}</a>
+            <div class="sw-timestamp">{{ post.created_at|timesince }} ago</div>
+        </div>
+        {% if post.user == user %}
+        <a href="{% url 'posts:delete_post' post_id=post.id %}" class="sw-timestamp text-danger" onclick="return confirm('Delete this post?');">Delete</a>
+        {% endif %}
+    </div>
+    {% if post.content %}<div class="sw-post-content">{{ post.content }}</div>{% endif %}
+    {% if post.image %}<img src="{{ post.image.url }}" class="sw-post-image">{% endif %}
+
+    <div class="sw-post-actions">
+        <a href="{% url 'posts:like_toggle' post_id=post.id %}" class="sw-action-btn {% if post|liked_by:user %}sw-liked{% endif %}">
+            👍 Like {% if post.like_count %}({{ post.like_count }}){% endif %}
+        </a>
+        <span class="sw-action-btn">💬 {{ post.comment_count }} Comments</span>
+    </div>
+
+    {% for comment in post.comments.all %}
+        <div class="sw-comment"><strong>{{ comment.user.username }}</strong> {{ comment.content }}</div>
+    {% endfor %}
+
+    <form method="post" action="{% url 'posts:add_comment' post_id=post.id %}" class="mt-2 d-flex gap-2">
+        {% csrf_token %}
+        <input type="text" name="content" class="form-control form-control-sm" placeholder="Write a comment..." required>
+        <button type="submit" class="btn btn-sm sw-btn-outline">Send</button>
+    </form>
+</div>
+{% empty %}
+<div class="sw-card text-center sw-timestamp">
+    No posts yet. Add some friends or create your first post!
+</div>
+{% endfor %}
+{% endblock %}

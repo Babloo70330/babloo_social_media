@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Chat with {{ other_user.username }}{% endblock %}
+{% block content %}
+<div class="sw-card p-0 overflow-hidden">
+    <div class="sw-chat-header d-flex align-items-center gap-2">
+        <a href="{% url 'chat:inbox' %}" class="sw-timestamp text-decoration-none">←</a>
+        <div class="sw-avatar">{{ other_user.username|first|upper }}</div>
+        <div class="sw-username">{{ other_user.username }}</div>
+    </div>
+
+    <div id="sw-messages" class="sw-chat-body">
+        {% include 'chat/_messages.html' %}
+    </div>
+
+    <form id="sw-chat-form" method="post" class="sw-chat-input">
+        {% csrf_token %}
+        <input type="text" name="content" id="sw-chat-text" class="form-control" placeholder="Type a message..." autocomplete="off" required>
+        <button type="submit" class="btn" style="background: var(--sw-primary); color:#fff;">Send</button>
+    </form>
+</div>
+
+<script>
+const messagesBox = document.getElementById('sw-messages');
+const chatForm = document.getElementById('sw-chat-form');
+const chatText = document.getElementById('sw-chat-text');
+const pollUrl = "{% url 'chat:poll' username=other_user.username %}";
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+function scrollToBottom() {
+    messagesBox.scrollTop = messagesBox.scrollHeight;
+}
+scrollToBottom();
+
+chatForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const content = chatText.value.trim();
+    if (!content) return;
+    fetch(window.location.href, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: `content=${encodeURIComponent(content)}&csrfmiddlewaretoken=${csrfToken}`,
+    }).then(() => {
+        chatText.value = '';
+        refreshMessages();
+    });
+});
+
+function refreshMessages() {
+    fetch(pollUrl)
+        .then(res => res.json())
+        .then(data => {
+            if (data.html) {
+                messagesBox.innerHTML = data.html;
+                scrollToBottom();
+            }
+        });
+}
+
+setInterval(refreshMessages, 3000);
+</script>
+{% endblock %}

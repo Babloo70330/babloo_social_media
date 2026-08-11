@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile_user.username }}'s Friends{% endblock %}
+{% block content %}
+<h5 class="mb-3">{{ profile_user.username }}'s Friends</h5>
+<div class="row">
+{% for friend in friends %}
+    <div class="col-4 mb-3">
+        <div class="sw-card sw-friend-card">
+            <div class="sw-avatar mx-auto mb-2">{{ friend.username|first|upper }}</div>
+            <a href="{% url 'accounts:profile' username=friend.username %}" class="text-decoration-none text-dark sw-username">{{ friend.username }}</a>
+        </div>
+    </div>
+{% empty %}
+    <p class="sw-timestamp">No friends yet.</p>
+{% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% for msg in thread %}
+    <div class="sw-msg-row {% if msg.sender == request.user %}sw-msg-out{% else %}sw-msg-in{% endif %}">
+        <div class="sw-msg-bubble">
+            {{ msg.content }}
+            <div class="sw-msg-time">{{ msg.created_at|time:"H:i" }}</div>
+        </div>
+    </div>
+{% endfor %}

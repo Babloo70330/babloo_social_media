@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Find Friends{% endblock %}
+{% block content %}
+<h5 class="mb-3">People You May Know</h5>
+<div class="row">
+{% for person in suggested %}
+    <div class="col-4 mb-3">
+        <div class="sw-card sw-friend-card">
+            <div class="sw-avatar mx-auto mb-2">{{ person.username|first|upper }}</div>
+            <a href="{% url 'accounts:profile' username=person.username %}" class="text-decoration-none text-dark sw-username d-block mb-2">{{ person.username }}</a>
+            <a href="{% url 'friends:send_request' username=person.username %}" class="btn btn-sm w-100" style="background: var(--sw-primary); color:#fff;">Add Friend</a>
+        </div>
+    </div>
+{% empty %}
+    <p class="sw-timestamp">No suggestions right now.</p>
+{% endfor %}
+</div>
+{% endblock %}

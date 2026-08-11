@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile_user.username }} - ConnectSphere{% endblock %}
+{% block content %}
+<div class="sw-profile-cover" {% if profile.cover_pic %}style="background-image: url('{{ profile.cover_pic.url }}');"{% endif %}></div>
+<div class="sw-profile-header">
+    {% if profile.profile_pic %}
+        <img src="{{ profile.profile_pic.url }}" class="sw-avatar sw-avatar-lg mx-auto mb-2">
+    {% else %}
+        <div class="sw-avatar sw-avatar-lg mx-auto mb-2">{{ profile_user.username|first|upper }}</div>
+    {% endif %}
+    <h4 class="mb-0">{{ profile_user.username }}</h4>
+    {% if profile.bio %}<p class="sw-timestamp mb-1">{{ profile.bio }}</p>{% endif %}
+    {% if profile.location %}<p class="sw-timestamp mb-1">📍 {{ profile.location }}</p>{% endif %}
+    <a href="{% url 'friends:friends_list' username=profile_user.username %}" class="sw-timestamp">{{ friend_count }} friend{{ friend_count|pluralize }}</a>
+
+    <div class="mt-3">
+        {% if is_self %}
+            <a href="{% url 'accounts:profile_edit' %}" class="btn btn-sm sw-btn-outline">Edit Profile</a>
+        {% elif is_friend %}
+            <span class="btn btn-sm btn-secondary disabled">Friends ✓</span>
+            <a href="{% url 'chat:conversation' username=profile_user.username %}" class="btn btn-sm" style="background: var(--sw-primary); color:#fff;">Message</a>
+        {% elif request_received %}
+            <a href="{% url 'friends:accept_request' request_id=request_received.id %}" class="btn btn-sm btn-success">Accept Request</a>
+        {% elif request_sent %}
+            <span class="btn btn-sm sw-btn-outline disabled">Request Sent</span>
+        {% else %}
+            <a href="{% url 'friends:send_request' username=profile_user.username %}" class="btn btn-sm" style="background: var(--sw-primary); color:#fff;">Add Friend</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mt-4">
+    <h6 class="mb-3">Posts</h6>
+    {% for post in posts %}
+        <div class="sw-card">
+            <div class="sw-post-header">
+                <div class="sw-avatar">{{ post.user.username|first|upper }}</div>
+                <div>
+                    <div class="sw-username">{{ post.user.username }}</div>
+                    <div class="sw-timestamp">{{ post.created_at|timesince }} ago</div>
+                </div>
+            </div>
+            {% if post.content %}<div class="sw-post-content">{{ post.content }}</div>{% endif %}
+            {% if post.image %}<img src="{{ post.image.url }}" class="sw-post-image">{% endif %}
+        </div>
+    {% empty %}
+        <p class="sw-timestamp">No posts yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}

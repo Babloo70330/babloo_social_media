@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Messages - ConnectSphere{% endblock %}
+{% block content %}
+<h5 class="mb-3">Messages</h5>
+
+{% for t in threads %}
+<a href="{% url 'chat:conversation' username=t.user.username %}" class="text-decoration-none text-dark">
+    <div class="sw-card d-flex flex-row align-items-center gap-3">
+        <div class="sw-avatar">{{ t.user.username|first|upper }}</div>
+        <div class="flex-grow-1">
+            <div class="sw-username">{{ t.user.username }} {% if t.unread %}<span class="badge rounded-pill" style="background: var(--sw-primary);">{{ t.unread }}</span>{% endif %}</div>
+            <div class="sw-timestamp">{{ t.last.content|truncatechars:50 }} · {{ t.last.created_at|timesince }} ago</div>
+        </div>
+    </div>
+</a>
+{% empty %}
+<p class="sw-timestamp">No conversations yet. Start chatting with a friend below.</p>
+{% endfor %}
+
+{% if friends_no_thread %}
+<h6 class="mt-4 mb-2 sw-timestamp">Start a new chat</h6>
+<div class="row">
+    {% for f in friends_no_thread %}
+    <div class="col-4 mb-3">
+        <a href="{% url 'chat:conversation' username=f.username %}" class="text-decoration-none text-dark">
+            <div class="sw-card sw-friend-card">
+                <div class="sw-avatar mx-auto mb-2">{{ f.username|first|upper }}</div>
+                <div class="sw-username">{{ f.username }}</div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
